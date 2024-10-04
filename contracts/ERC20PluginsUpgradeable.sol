@@ -23,43 +23,50 @@ abstract contract ERC20PluginsUpgradeable is ERC20Upgradeable, IERC20Plugins, Re
     /// @custom:storage-location erc7201:storage.ERC20PluginsUpgradeable
     struct ERC20PluginsStorage {
         /// @dev Limit of plugins per account
+        // solhint-disable-next-line var-name-mixedcase
         uint256 MAX_PLUGINS_PER_ACCOUNT;
         /// @dev Gas limit for a single plugin call
+        // solhint-disable-next-line var-name-mixedcase
         uint256 PLUGIN_CALL_GAS_LIMIT;
         ReentrancyGuardLib.Data _guard;
         mapping(address => AddressSet.Data) _plugins;
     }
 
     // keccak256(abi.encode(uint256(keccak256("storage.ERC20PluginsUpgradeable")) - 1)) & ~bytes32(uint256(0xff))
+    // solhint-disable-next-line private-vars-leading-underscore,const-name-snakecase
     bytes32 private constant ERC20PluginsStorageLocation =
         0x4108db94c380a8d8a20de99d345afff9c495eeb068ca094fde639726075c9400;
 
     function _getERC20PluginsStorage() internal pure returns (ERC20PluginsStorage storage $) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             $.slot := ERC20PluginsStorageLocation
         }
     }
 
+    // solhint-disable-next-line func-name-mixedcase
     function __ERC20Plugins_init(uint256 pluginsLimit_, uint256 pluginCallGasLimit_) internal onlyInitializing {
         __ERC20Plugins_init_unchained(pluginsLimit_, pluginCallGasLimit_);
     }
 
     /**
-     * @dev Constructor that sets the limit of plugins per account and the gas limit for a plugin call.
-     * @param pluginsLimit_ The limit of plugins per account.
-     * @param pluginCallGasLimit_ The gas limit for a plugin call. Intended to prevent gas bomb attacks
+     * @dev Initializer function that sets the limit of plugins per account and the gas limit for a plugin call.
+     * @param pluginsLimit The limit of plugins per account.
+     * @param pluginCallGasLimit The gas limit for a plugin call. Intended to prevent gas bomb attacks
      */
-    function __ERC20Plugins_init_unchained(uint256 pluginsLimit_, uint256 pluginCallGasLimit_) internal {
-        if (pluginsLimit_ == 0) revert ZeroPluginsLimit();
+    // solhint-disable-next-line func-name-mixedcase
+    function __ERC20Plugins_init_unchained(uint256 pluginsLimit, uint256 pluginCallGasLimit) internal {
+        if (pluginsLimit == 0) revert ZeroPluginsLimit();
         ERC20PluginsStorage storage $ = _getERC20PluginsStorage();
-        $.MAX_PLUGINS_PER_ACCOUNT = pluginsLimit_;
-        $.PLUGIN_CALL_GAS_LIMIT = pluginCallGasLimit_;
+        $.MAX_PLUGINS_PER_ACCOUNT = pluginsLimit;
+        $.PLUGIN_CALL_GAS_LIMIT = pluginCallGasLimit;
         $._guard.init();
     }
 
     /**
      * @notice See {IERC20Plugins-MAX_PLUGINS_PER_ACCOUNT}.
      */
+    // solhint-disable-next-line func-name-mixedcase
     function MAX_PLUGINS_PER_ACCOUNT() public view virtual returns (uint256) {
         return _getERC20PluginsStorage().MAX_PLUGINS_PER_ACCOUNT;
     }
@@ -67,6 +74,7 @@ abstract contract ERC20PluginsUpgradeable is ERC20Upgradeable, IERC20Plugins, Re
     /**
      * @notice See {IERC20Plugins-PLUGIN_CALL_GAS_LIMIT}.
      */
+    // solhint-disable-next-line func-name-mixedcase
     function PLUGIN_CALL_GAS_LIMIT() public view virtual returns (uint256) {
         return _getERC20PluginsStorage().PLUGIN_CALL_GAS_LIMIT;
     }
@@ -201,8 +209,8 @@ abstract contract ERC20PluginsUpgradeable is ERC20Upgradeable, IERC20Plugins, Re
     function _updateBalances(address plugin, address from, address to, uint256 amount) private {
         bytes4 selector = IPlugin.updateBalances.selector;
         uint256 gasLimit = _getERC20PluginsStorage().PLUGIN_CALL_GAS_LIMIT;
+        // solhint-disable-next-line no-inline-assembly
         assembly ("memory-safe") {
-            // solhint-disable-line no-inline-assembly
             let ptr := mload(0x40)
             mstore(ptr, selector)
             mstore(add(ptr, 0x04), from)
